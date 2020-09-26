@@ -72,9 +72,11 @@ and their values comes from the AlbumImage API response. If an invalid replaceme
 an error is returned. If the conf key is omitted or is empty, then `{{.FileName}}` is used.  
 
 When **use_metadata_times** is true, then the last modification timestamp of the objects will
-be set based on SmugMug metadata for newly downloaded files. Note that this option can require
+be set based on SmugMug metadata for newly downloaded files. Note that this option requires
 an additional API call for each image/video. If also **force_metadata_times** is true, then the
-timestamp is applied to all existing files.
+timestamp is applied to all existing files. As making the additional call for each object requires
+a lot of time, it's suggested to use **force_metadata_times** once to set the correct time to all
+existing files and then disable it for following backups.
 
 **api_key**, **api_secret**, **user_token** and **user_secret** are the required credentials for
 authenticating with the SmugMug API.  

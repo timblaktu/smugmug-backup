@@ -80,6 +80,7 @@ func (w *Worker) albumImages(firstURI string, albumPath string) ([]albumImage, e
 func (w *Worker) imageTimestamp(img albumImage) time.Time {
 	var i imageMetadataResponse
 	if err := w.req.get(img.Uris.ImageMetadata.Uri, &i); err != nil {
+		log.Errorf("%s: %v", img.Uris.ImageMetadata.Uri, err)
 		return time.Time{}
 	}
 	return i.Response.DateTimeCreated
@@ -150,15 +151,11 @@ func (w *Worker) saveVideo(image albumImage, folder string) error {
 }
 
 func (w *Worker) setChTime(image albumImage, dest string) error {
-	// Try first with the date in the image, to avoid making an additional call
-	created, err := time.Parse(time.RFC3339, image.DateTimeOriginal)
-	if err != nil || created.IsZero() {
-		created = w.imageTimestamp(image)
-	}
-	if !created.IsZero() {
-		log.Debugf("Setting chtime %v for %s", created, dest)
-		return os.Chtimes(dest, time.Now(), created)
+	created := w.imageTimestamp(image)
+	if created.IsZero() {
+		return nil
 	}
 
-	return nil
+	log.Debugf("Setting chtime %v for %s", created, dest)
+	return os.Chtimes(dest, time.Now(), created)
 }
